@@ -22,6 +22,7 @@ export default defineConfig({
       // },
       // publicPath: 'https://unpkg.com/vite-plugin-monaco-editor@1.0.5/cdn',
       // forceBuildCDN: true,
+      languageWorkers: ['typescript'],
       customWorkers: [
         {
           label: 'graphql',

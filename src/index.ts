@@ -3,8 +3,9 @@ import { resolve, join } from 'node:path';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { buildSync } from 'esbuild'
 
-import { EditorLanguageWorks, IWorkerDefinition, languageWorksByLabel } from './lnaguageWork.js';
-import { workerMiddleware, cacheDir, getFilenameByEntry, getWorkPath } from './workerMiddleware.js';
+import { EditorLanguageWorks, editorWorkerService, IWorkerDefinition, languageWorksByLabel } from './lnaguageWork';
+import { workerMiddleware, cacheDir, getFilenameByEntry, getWorkPath } from './workerMiddleware';
+import * as esbuild from 'esbuild';
 
 /**
  * Return a resolved path for a given Monaco file.
@@ -23,6 +24,10 @@ export function getWorks(options: IMonacoEditorOpts) {
   );
 
   works.push(...options.customWorkers);
+
+  if (!works.find((worker) => worker.label === 'editorWorkerService')) {
+    works.push(editorWorkerService);
+  }
 
   return works;
 }
@@ -135,16 +140,16 @@ export default function monacoEditorPlugin(options: IMonacoEditorOpts): Plugin {
 
       const distPath = options.customDistPath
         ? options.customDistPath(
-            resolvedConfig.root,
-            resolvedConfig.build.outDir,
-            resolvedConfig.base
-          )
+          resolvedConfig.root,
+          resolvedConfig.build.outDir,
+          resolvedConfig.base
+        )
         : join(
-            resolvedConfig.root,
-            resolvedConfig.build.outDir,
-            resolvedConfig.base,
-            options.publicPath
-          );
+          resolvedConfig.root,
+          resolvedConfig.build.outDir,
+          resolvedConfig.base,
+          options.publicPath
+        );
 
       //  console.log("distPath", distPath)
 
